@@ -17,6 +17,7 @@ export interface CatalogueCard {
   author: string;
   title: string;
   additional_authors: string[];
+  additional_authors_as_it_is: string[];
   publication: Publication;
   physical_description: PhysicalDescription;
   edition: string;
@@ -33,6 +34,7 @@ export interface CardFormData {
   author: string;
   title: string;
   additional_authors: string[];
+  additional_authors_as_it_is: string[];
   publication: Publication;
   physical_description: PhysicalDescription;
   edition: string;

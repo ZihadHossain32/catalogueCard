@@ -32,6 +32,7 @@ function App() {
     let title = "";
     let author = "";
     let additional_authors: string[] = [];
+    let additional_authors_as_it_is: string[] = [];
 
     // Find the line containing '/' which separates title from authors
     const titleEndIndex = lines.findIndex((line) => line.includes("/"));
@@ -54,6 +55,7 @@ function App() {
         const authors = authorsBeforeDash.split(",").map((a) => a.trim());
         author = authors[0];
         additional_authors = authors.slice(1);
+        additional_authors_as_it_is = authors.slice(1);
       }
     }
 
@@ -94,6 +96,7 @@ function App() {
       author,
       title,
       additional_authors,
+      additional_authors_as_it_is,
       publication: {
         place: pubMatch?.[1] || "",
         publisher: pubMatch?.[2] || "",
@@ -193,6 +196,7 @@ function App() {
       ...card,
       subjects: card.subjects.join(", "), // Convert subjects array to a comma-separated string
       additional_authors: card.additional_authors.join(", "), // Convert additional authors array to a comma-separated string
+      additional_authors_as_it_is: card.additional_authors_as_it_is.join(", "),
       barcodes: card.barcodes.join(", "), // Convert barcodes array to a comma-separated string
     }));
 

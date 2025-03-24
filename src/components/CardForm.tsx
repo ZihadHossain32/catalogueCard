@@ -40,6 +40,12 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
     onChange({ ...data, additional_authors: newAuthors });
   };
 
+  const handleAdditionalAuthorChangeAsItIS = (index: number, value: string) => {
+    const newAuthors = [...data.additional_authors_as_it_is];
+    newAuthors[index] = value;
+    onChange({ ...data, additional_authors_as_it_is: newAuthors });
+  };
+
   const handleSubjectChange = (index: number, value: string) => {
     const newSubjects = [...data.subjects];
     newSubjects[index] = value;
@@ -48,6 +54,13 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
 
   const addAdditionalAuthor = () => {
     onChange({ ...data, additional_authors: [...data.additional_authors, ""] });
+  };
+
+  const addAdditionalAuthorAsItIS = () => {
+    onChange({
+      ...data,
+      additional_authors_as_it_is: [...data.additional_authors_as_it_is, ""],
+    });
   };
 
   const addSubject = () => {
@@ -72,6 +85,13 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
   const removeAdditionalAuthor = (index: number) => {
     const newAuthors = data.additional_authors.filter((_, i) => i !== index);
     onChange({ ...data, additional_authors: newAuthors });
+  };
+
+  const removeAdditionalAuthorChangeAsItIS = (index: number) => {
+    const newAuthors = data.additional_authors_as_it_is.filter(
+      (_, i) => i !== index
+    );
+    onChange({ ...data, additional_authors_as_it_is: newAuthors });
   };
 
   const removeSubject = (index: number) => {
@@ -133,7 +153,7 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Author
+                  Author as it is
                 </label>
                 <input
                   type="text"
@@ -183,6 +203,43 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
                     <button
                       type="button"
                       onClick={() => removeAdditionalAuthor(index)}
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Additional Authors as it is
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addAdditionalAuthorAsItIS}
+                    className="text-blue-600 hover:text-blue-700"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                </div>
+                {data.additional_authors_as_it_is.map((author, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={author}
+                      onChange={(e) =>
+                        handleAdditionalAuthorChangeAsItIS(
+                          index,
+                          e.target.value
+                        )
+                      }
+                      className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeAdditionalAuthorChangeAsItIS(index)}
                       className="text-red-500 hover:text-red-600"
                     >
                       <Trash2 className="h-4 w-4" />
