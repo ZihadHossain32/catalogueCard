@@ -197,6 +197,7 @@ function App() {
   };
   const handleChangeCard = (updatedData: CardFormData) => {
     if (selectedCard) {
+      setSelectedCard((prev) => (prev ? { ...prev, ...updatedData } : prev)); // Update selectedCard
       setCards((prevCards) =>
         prevCards.map((card) =>
           card.id === selectedCard.id ? { ...card, ...updatedData } : card
