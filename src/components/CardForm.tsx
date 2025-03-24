@@ -1,6 +1,6 @@
-import React from 'react';
-import { X, Plus, Trash2 } from 'lucide-react';
-import type { CardFormData } from '../types';
+import { Plus, Trash2, X } from "lucide-react";
+import React from "react";
+import type { CardFormData } from "../types";
 
 interface CardFormProps {
   data: CardFormData;
@@ -8,9 +8,10 @@ interface CardFormProps {
   onClose: () => void;
   onSave: (data: CardFormData) => void;
 }
-
 export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     onChange({ ...data, [name]: value });
   };
@@ -19,15 +20,17 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
     const { name, value } = e.target;
     onChange({
       ...data,
-      publication: { ...data.publication, [name]: value }
+      publication: { ...data.publication, [name]: value },
     });
   };
 
-  const handlePhysicalDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhysicalDescriptionChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value } = e.target;
     onChange({
       ...data,
-      physical_description: { ...data.physical_description, [name]: value }
+      physical_description: { ...data.physical_description, [name]: value },
     });
   };
 
@@ -44,11 +47,11 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
   };
 
   const addAdditionalAuthor = () => {
-    onChange({ ...data, additional_authors: [...data.additional_authors, ''] });
+    onChange({ ...data, additional_authors: [...data.additional_authors, ""] });
   };
 
   const addSubject = () => {
-    onChange({ ...data, subjects: [...data.subjects, ''] });
+    onChange({ ...data, subjects: [...data.subjects, ""] });
   };
 
   const removeAdditionalAuthor = (index: number) => {
@@ -71,7 +74,10 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
       <div className="bg-white rounded-lg max-w-4xl w-full p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Edit Catalogue Card Data</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -79,9 +85,15 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
+              <div>
+                <img src={data.imgUrl} className="w-full" alt="" />
+              </div>
               <div className="grid grid-cols-2 gap-4">
+                <br />
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Classification Number</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Classification Number
+                  </label>
                   <input
                     type="text"
                     name="classification_number"
@@ -91,7 +103,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Call Number</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Call Number
+                  </label>
                   <input
                     type="text"
                     name="call_number"
@@ -103,7 +117,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Author</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Author
+                </label>
                 <input
                   type="text"
                   name="author"
@@ -114,7 +130,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Title</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Title
+                </label>
                 <input
                   type="text"
                   name="title"
@@ -126,7 +144,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
 
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <label className="block text-sm font-medium text-gray-700">Additional Authors</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Additional Authors
+                  </label>
                   <button
                     type="button"
                     onClick={addAdditionalAuthor}
@@ -140,7 +160,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
                     <input
                       type="text"
                       value={author}
-                      onChange={(e) => handleAdditionalAuthorChange(index, e.target.value)}
+                      onChange={(e) =>
+                        handleAdditionalAuthorChange(index, e.target.value)
+                      }
                       className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     />
                     <button
@@ -158,7 +180,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Publication Place</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Publication Place
+                  </label>
                   <input
                     type="text"
                     name="place"
@@ -168,7 +192,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Publisher</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Publisher
+                  </label>
                   <input
                     type="text"
                     name="publisher"
@@ -181,7 +207,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Publication Year</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Publication Year
+                  </label>
                   <input
                     type="text"
                     name="year"
@@ -191,7 +219,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Edition</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Edition
+                  </label>
                   <input
                     type="text"
                     name="edition"
@@ -204,7 +234,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Pages</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Pages
+                  </label>
                   <input
                     type="text"
                     name="pages"
@@ -214,7 +246,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Dimensions</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Dimensions
+                  </label>
                   <input
                     type="text"
                     name="dimensions"
@@ -226,7 +260,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">ISBN</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  ISBN
+                </label>
                 <input
                   type="text"
                   name="isbn"
@@ -238,7 +274,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
 
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <label className="block text-sm font-medium text-gray-700">Subjects</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Subjects
+                  </label>
                   <button
                     type="button"
                     onClick={addSubject}
@@ -252,7 +290,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
                     <input
                       type="text"
                       value={subject}
-                      onChange={(e) => handleSubjectChange(index, e.target.value)}
+                      onChange={(e) =>
+                        handleSubjectChange(index, e.target.value)
+                      }
                       className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     />
                     <button
@@ -267,7 +307,9 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Notes</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Notes
+                </label>
                 <textarea
                   name="notes"
                   value={data.notes}

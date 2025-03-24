@@ -11,6 +11,7 @@ export interface PhysicalDescription {
 
 export interface CatalogueCard {
   id: string;
+  imgUrl: string;
   classification_number: string;
   call_number: string;
   author: string;
@@ -27,6 +28,7 @@ export interface CatalogueCard {
 
 export interface CardFormData {
   classification_number: string;
+  imgUrl: string;
   call_number: string;
   author: string;
   title: string;

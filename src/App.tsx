@@ -1,88 +1,93 @@
-import React, { useState } from 'react';
-import { ImageUpload } from './components/ImageUpload';
-import { CardForm } from './components/CardForm';
-import { Download, Loader2, Library, Edit } from 'lucide-react';
-import { recognize } from 'tesseract.js';
-import { utils, writeFile } from 'xlsx';
-import type { CatalogueCard, CardFormData } from './types';
+import { Download, Edit, Library, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { recognize } from "tesseract.js";
+import { utils, writeFile } from "xlsx";
+import { CardForm } from "./components/CardForm";
+import { ImageUpload } from "./components/ImageUpload";
+import type { CardFormData, CatalogueCard } from "./types";
 
 function App() {
   const [loading, setLoading] = useState(false);
   const [cards, setCards] = useState<CatalogueCard[]>([]);
-  const [processingProgress, setProcessingProgress] = useState({ current: 0, total: 0 });
+  const [processingProgress, setProcessingProgress] = useState({
+    current: 0,
+    total: 0,
+  });
   const [showForm, setShowForm] = useState(false);
   const [selectedCard, setSelectedCard] = useState<CatalogueCard | null>(null);
 
   const extractFields = (text: string): CardFormData => {
-    const lines = text.split('\n').filter(line => line.trim());
-    
+    const lines = text.split("\n").filter((line) => line.trim());
+
     // Extract classification number and call number from first line (left side)
-    const firstLine = lines[0]?.trim() || '';
+    const firstLine = lines[0]?.trim() || "";
     const callNumberParts = firstLine.split(/\s+/).filter(Boolean);
-    const classification_number = callNumberParts[0] || '';
-    const call_number = callNumberParts.slice(1).join(' ') || '';
-    
+    const classification_number = callNumberParts[0] || "";
+    const call_number = callNumberParts.slice(1).join(" ") || "";
+
     // Extract barcode (5-digit number, usually at the bottom left)
-    const barcode = lines.find(line => /^\d{5}$/.test(line.trim())) || '';
-    
+    const barcode = lines.find((line) => /^\d{5}$/.test(line.trim())) || "";
+
     // Extract title and authors (title can be 2-3 lines before the '/')
-    let title = '';
-    let author = '';
+    let title = "";
+    let author = "";
     let additional_authors: string[] = [];
-    
+
     // Find the line containing '/' which separates title from authors
-    const titleEndIndex = lines.findIndex(line => line.includes('/'));
+    const titleEndIndex = lines.findIndex((line) => line.includes("/"));
     if (titleEndIndex > 0) {
       // Get all lines from after call number until the '/' line
       const titleLines = lines.slice(1, titleEndIndex + 1);
       const lastTitleLine = titleLines[titleLines.length - 1];
-      const [titlePart] = lastTitleLine.split('/');
-      
+      const [titlePart] = lastTitleLine.split("/");
+
       // Combine previous lines with the title part before '/'
       title = [...titleLines.slice(0, -1), titlePart]
-        .join(' ')
-        .replace(/\s+/g, ' ')
+        .join(" ")
+        .replace(/\s+/g, " ")
         .trim();
-      
+
       // Extract authors after the '/'
-      const authorsPart = lastTitleLine.split('/')[1];
+      const authorsPart = lastTitleLine.split("/")[1];
       if (authorsPart) {
-        const authorsBeforeDash = authorsPart.split('--')[0];
-        const authors = authorsBeforeDash.split(',').map(a => a.trim());
+        const authorsBeforeDash = authorsPart.split("--")[0];
+        const authors = authorsBeforeDash.split(",").map((a) => a.trim());
         author = authors[0];
         additional_authors = authors.slice(1);
       }
     }
-    
+
     // Extract publication info
-    const pubLine = lines.find(line => line.includes('--') && line.includes(':')) || '';
+    const pubLine =
+      lines.find((line) => line.includes("--") && line.includes(":")) || "";
     const pubMatch = pubLine.match(/--\s*([^:]+)\s*:\s*([^,]+),\s*(\d{4})/);
-    
+
     // Extract physical description
-    const physicalLine = lines.find(line => line.includes('p.') || line.includes('cm')) || '';
+    const physicalLine =
+      lines.find((line) => line.includes("p.") || line.includes("cm")) || "";
     const pagesMatch = physicalLine.match(/([xiv\d,\s]+p\.)/);
     const dimensionsMatch = physicalLine.match(/(\d+cm)/);
-    
+
     // Extract ISBN
-    const isbnLine = lines.find(line => line.includes('ISBN')) || '';
+    const isbnLine = lines.find((line) => line.includes("ISBN")) || "";
     const isbnMatch = isbnLine.match(/ISBN[:\s]*([0-9-]+)/i);
-    
+
     // Extract subjects (numbered list after ISBN)
-    const subjectStartIndex = lines.findIndex(line => /^\d+\.\s/.test(line));
+    const subjectStartIndex = lines.findIndex((line) => /^\d+\.\s/.test(line));
     const subjects = lines
       .slice(subjectStartIndex)
-      .filter(line => /^\d+\.\s/.test(line))
-      .map(line => line.replace(/^\d+\.\s/, '').trim());
-    
+      .filter((line) => /^\d+\.\s/.test(line))
+      .map((line) => line.replace(/^\d+\.\s/, "").trim());
+
     // Extract notes
-    const notes = lines.find(line => 
-      line.includes('Includes') || 
-      line.includes('bibliographical')
-    ) || '';
-    
+    const notes =
+      lines.find(
+        (line) => line.includes("Includes") || line.includes("bibliographical")
+      ) || "";
+
     // Extract edition
     const editionMatch = text.match(/(\d+(?:st|nd|rd|th)\s+ed)/i);
-    
+
     return {
       classification_number,
       call_number,
@@ -90,60 +95,91 @@ function App() {
       title,
       additional_authors,
       publication: {
-        place: pubMatch?.[1] || '',
-        publisher: pubMatch?.[2] || '',
-        year: pubMatch?.[3] || ''
+        place: pubMatch?.[1] || "",
+        publisher: pubMatch?.[2] || "",
+        year: pubMatch?.[3] || "",
       },
       physical_description: {
-        pages: pagesMatch?.[1] || '',
-        dimensions: dimensionsMatch?.[1] || ''
+        pages: pagesMatch?.[1] || "",
+        dimensions: dimensionsMatch?.[1] || "",
       },
-      edition: editionMatch?.[1] || '',
+      edition: editionMatch?.[1] || "",
       notes,
-      isbn: isbnMatch?.[1] || '',
+      isbn: isbnMatch?.[1] || "",
       subjects,
-      barcode
+      barcode,
     };
   };
 
   const processImage = async (file: File): Promise<CardFormData | null> => {
     try {
-      const result = await recognize(file, 'eng', {
-        logger: m => console.log(m)
+      const result = await recognize(file, "eng", {
+        logger: (m) => console.log(m),
       });
-      
+
       const cardData = extractFields(result.data.text);
       if (cardData.classification_number || cardData.call_number) {
         return cardData;
       }
       return null;
     } catch (error) {
-      console.error('Error processing image:', error);
+      console.error("Error processing image:", error);
       return null;
     }
   };
 
+  // const handleImagesUpload = async (files: File[]) => {
+  //   setLoading(true);
+  //   setProcessingProgress({ current: 0, total: files.length });
+
+  //   const newCards: CatalogueCard[] = [];
+
+  //   for (let i = 0; i < files.length; i++) {
+  //     const cardData = await processImage(files[i]);
+  //     if (cardData) {
+  //       newCards.push({
+  //         id: Date.now().toString() + Math.random(),
+  //         ...cardData
+  //       });
+  //     }
+  //     setProcessingProgress({ current: i + 1, total: files.length });
+  //   }
+
+  //   if (newCards.length > 0) {
+  //     setCards(prevCards => [...prevCards, ...newCards]);
+  //   }
+
+  //   setLoading(false);
+  //   setProcessingProgress({ current: 0, total: 0 });
+  // };
+
   const handleImagesUpload = async (files: File[]) => {
     setLoading(true);
     setProcessingProgress({ current: 0, total: files.length });
-    
+
     const newCards: CatalogueCard[] = [];
-    
+
     for (let i = 0; i < files.length; i++) {
-      const cardData = await processImage(files[i]);
+      const file = files[i];
+      const cardData = await processImage(file);
+
       if (cardData) {
+        const imageUrl = URL.createObjectURL(file); // 👈 Create preview URL
+
         newCards.push({
           id: Date.now().toString() + Math.random(),
-          ...cardData
+          ...cardData, // 👈 Spread all extracted card data
+          imgUrl: imageUrl, // 👈 Ensure this is LAST so it overrides any earlier imgUrl
         });
       }
+
       setProcessingProgress({ current: i + 1, total: files.length });
     }
-    
+
     if (newCards.length > 0) {
-      setCards(prevCards => [...prevCards, ...newCards]);
+      setCards((prevCards) => [...prevCards, ...newCards]);
     }
-    
+
     setLoading(false);
     setProcessingProgress({ current: 0, total: 0 });
   };
@@ -151,22 +187,28 @@ function App() {
   const handleExport = () => {
     const ws = utils.json_to_sheet(cards);
     const wb = utils.book_new();
-    utils.book_append_sheet(wb, ws, 'Catalogue Cards');
-    writeFile(wb, 'library-catalogue.xlsx');
+    utils.book_append_sheet(wb, ws, "Catalogue Cards");
+    writeFile(wb, "library-catalogue.xlsx");
   };
 
   const handleEditCard = (card: CatalogueCard) => {
     setSelectedCard(card);
     setShowForm(true);
   };
-
+  const handleChangeCard = (updatedData: CardFormData) => {
+    if (selectedCard) {
+      setCards((prevCards) =>
+        prevCards.map((card) =>
+          card.id === selectedCard.id ? { ...card, ...updatedData } : card
+        )
+      );
+    }
+  };
   const handleSaveCard = (updatedData: CardFormData) => {
     if (selectedCard) {
-      setCards(prevCards => 
-        prevCards.map(card => 
-          card.id === selectedCard.id 
-            ? { ...card, ...updatedData }
-            : card
+      setCards((prevCards) =>
+        prevCards.map((card) =>
+          card.id === selectedCard.id ? { ...card, ...updatedData } : card
         )
       );
     }
@@ -186,7 +228,7 @@ function App() {
           </div>
 
           <div className="mb-8">
-            <ImageUpload 
+            <ImageUpload
               onImageUpload={handleImagesUpload}
               isBulkProcessing={loading}
             />
@@ -197,14 +239,18 @@ function App() {
               <div className="flex items-center mb-4">
                 <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                 <span className="ml-2 text-gray-600">
-                  Processing images... ({processingProgress.current} of {processingProgress.total})
+                  Processing images... ({processingProgress.current} of{" "}
+                  {processingProgress.total})
                 </span>
               </div>
               <div className="w-full max-w-md bg-gray-200 rounded-full h-2.5">
-                <div 
+                <div
                   className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-                  style={{ 
-                    width: `${(processingProgress.current / processingProgress.total) * 100}%`
+                  style={{
+                    width: `${
+                      (processingProgress.current / processingProgress.total) *
+                      100
+                    }%`,
                   }}
                 ></div>
               </div>
@@ -214,7 +260,9 @@ function App() {
           {cards.length > 0 && (
             <div className="mt-8">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">Scanned Cards</h2>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Scanned Cards
+                </h2>
                 <button
                   onClick={handleExport}
                   className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
@@ -252,7 +300,9 @@ function App() {
                       <div className="flex-1">
                         <div className="flex justify-between items-start mb-4">
                           <div className="flex-1">
-                            <h3 className="font-semibold text-lg whitespace-pre-wrap">{card.title}</h3>
+                            <h3 className="font-semibold text-lg whitespace-pre-wrap">
+                              {card.title}
+                            </h3>
                             <p className="text-gray-600">{card.author}</p>
                           </div>
                           <button
@@ -267,26 +317,37 @@ function App() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <p className="text-gray-600">
-                              {card.publication.publisher}, {card.publication.year}
+                              {card.publication.publisher},{" "}
+                              {card.publication.year}
                             </p>
                           </div>
                           <div>
                             {card.additional_authors.length > 0 && (
                               <div className="mb-2">
-                                <p className="text-sm text-gray-500">Additional Authors:</p>
+                                <p className="text-sm text-gray-500">
+                                  Additional Authors:
+                                </p>
                                 <ul className="list-disc list-inside">
-                                  {card.additional_authors.map((author, index) => (
-                                    <li key={index} className="text-gray-600">{author}</li>
-                                  ))}
+                                  {card.additional_authors.map(
+                                    (author, index) => (
+                                      <li key={index} className="text-gray-600">
+                                        {author}
+                                      </li>
+                                    )
+                                  )}
                                 </ul>
                               </div>
                             )}
                             {card.subjects.length > 0 && (
                               <div>
-                                <p className="text-sm text-gray-500">Subjects:</p>
+                                <p className="text-sm text-gray-500">
+                                  Subjects:
+                                </p>
                                 <ul className="list-disc list-inside">
                                   {card.subjects.map((subject, index) => (
-                                    <li key={index} className="text-gray-600">{subject}</li>
+                                    <li key={index} className="text-gray-600">
+                                      {subject}
+                                    </li>
                                   ))}
                                 </ul>
                               </div>
@@ -294,7 +355,9 @@ function App() {
                           </div>
                         </div>
                         {card.notes && (
-                          <p className="mt-2 text-gray-600 text-sm">{card.notes}</p>
+                          <p className="mt-2 text-gray-600 text-sm">
+                            {card.notes}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -309,7 +372,7 @@ function App() {
       {showForm && selectedCard && (
         <CardForm
           data={selectedCard}
-          onChange={handleSaveCard}
+          onChange={handleChangeCard}
           onClose={() => {
             setShowForm(false);
             setSelectedCard(null);
