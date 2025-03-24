@@ -23,7 +23,7 @@ export interface CatalogueCard {
   notes: string;
   isbn: string;
   subjects: string[];
-  barcode: string;
+  barcodes: string[];
 }
 
 export interface CardFormData {
@@ -39,5 +39,5 @@ export interface CardFormData {
   notes: string;
   isbn: string;
   subjects: string[];
-  barcode: string;
+  barcodes: string[];
 }

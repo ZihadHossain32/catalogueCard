@@ -54,6 +54,21 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
     onChange({ ...data, subjects: [...data.subjects, ""] });
   };
 
+  const handleBarcodeChange = (index: number, value: string) => {
+    const newBarcodes = [...data.barcodes];
+    newBarcodes[index] = value;
+    onChange({ ...data, barcodes: newBarcodes });
+  };
+
+  const addBarcode = () => {
+    onChange({ ...data, barcodes: [...data.barcodes, ""] });
+  };
+
+  const removeBarcode = (index: number) => {
+    const newBarcodes = data.barcodes.filter((_, i) => i !== index);
+    onChange({ ...data, barcodes: newBarcodes });
+  };
+
   const removeAdditionalAuthor = (index: number) => {
     const newAuthors = data.additional_authors.filter((_, i) => i !== index);
     onChange({ ...data, additional_authors: newAuthors });
@@ -245,6 +260,7 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Dimensions
@@ -298,6 +314,43 @@ export function CardForm({ data, onChange, onClose, onSave }: CardFormProps) {
                     <button
                       type="button"
                       onClick={() => removeSubject(index)}
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Barcodes
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addBarcode}
+                    className="text-blue-600 hover:text-blue-700"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                </div>
+                {data.barcodes.map((barcode, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={barcode}
+                      onInput={(e) => {
+                        const onlyNumbers = e.currentTarget.value.replace(
+                          /\D/g,
+                          ""
+                        );
+                        handleBarcodeChange(index, onlyNumbers);
+                      }}
+                      className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeBarcode(index)}
                       className="text-red-500 hover:text-red-600"
                     >
                       <Trash2 className="h-4 w-4" />

@@ -24,9 +24,9 @@ function App() {
     const callNumberParts = firstLine.split(/\s+/).filter(Boolean);
     const classification_number = callNumberParts[0] || "";
     const call_number = callNumberParts.slice(1).join(" ") || "";
-
-    // Extract barcode (5-digit number, usually at the bottom left)
-    const barcode = lines.find((line) => /^\d{5}$/.test(line.trim())) || "";
+    const barcodes = lines
+      .filter((line) => /^\d{5}$/.test(line.trim()))
+      .map((line) => line.trim());
 
     // Extract title and authors (title can be 2-3 lines before the '/')
     let title = "";
@@ -107,7 +107,7 @@ function App() {
       notes,
       isbn: isbnMatch?.[1] || "",
       subjects,
-      barcode,
+      barcodes,
     };
   };
 
@@ -185,7 +185,18 @@ function App() {
   };
 
   const handleExport = () => {
-    const ws = utils.json_to_sheet(cards);
+    // const ws = utils.json_to_sheet(cards);
+    // const wb = utils.book_new();
+    // utils.book_append_sheet(wb, ws, "Catalogue Cards");
+    // writeFile(wb, "library-catalogue.xlsx");
+    const cardsForExport = cards.map((card) => ({
+      ...card,
+      subjects: card.subjects.join(", "), // Convert subjects array to a comma-separated string
+      additional_authors: card.additional_authors.join(", "), // Convert additional authors array to a comma-separated string
+      barcodes: card.barcodes.join(", "), // Convert barcodes array to a comma-separated string
+    }));
+
+    const ws = utils.json_to_sheet(cardsForExport);
     const wb = utils.book_new();
     utils.book_append_sheet(wb, ws, "Catalogue Cards");
     writeFile(wb, "library-catalogue.xlsx");
@@ -290,9 +301,9 @@ function App() {
                             {card.call_number}
                           </p>
                         </div>
-                        {card.barcode && (
+                        {card.barcodes && (
                           <p className="font-mono text-gray-600 mt-4">
-                            {card.barcode}
+                            {card.barcodes}
                           </p>
                         )}
                       </div>
