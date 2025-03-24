@@ -192,18 +192,50 @@ function App() {
     // const wb = utils.book_new();
     // utils.book_append_sheet(wb, ws, "Catalogue Cards");
     // writeFile(wb, "library-catalogue.xlsx");
-    const cardsForExport = cards.map((card) => ({
-      ...card,
-      subjects: card.subjects.join(", "), // Convert subjects array to a comma-separated string
-      additional_authors: card.additional_authors.join(", "), // Convert additional authors array to a comma-separated string
-      additional_authors_as_it_is: card.additional_authors_as_it_is.join(", "),
-      barcodes: card.barcodes.join(", "), // Convert barcodes array to a comma-separated string
-    }));
+    // const cardsForExport = cards.map((card) => ({
+    //   ...card,
+    //   subjects: card.subjects.join(", "), // Convert subjects array to a comma-separated string
+    //   additional_authors: card.additional_authors.join(", "), // Convert additional authors array to a comma-separated string
+    //   additional_authors_as_it_is: card.additional_authors_as_it_is.join(", "),
+    //   barcodes: card.barcodes.join(", "), // Convert barcodes array to a comma-separated string
+    // }));
 
-    const ws = utils.json_to_sheet(cardsForExport);
-    const wb = utils.book_new();
-    utils.book_append_sheet(wb, ws, "Catalogue Cards");
-    writeFile(wb, "library-catalogue.xlsx");
+    // const ws = utils.json_to_sheet(cardsForExport);
+    // const wb = utils.book_new();
+    // utils.book_append_sheet(wb, ws, "Catalogue Cards");
+    // writeFile(wb, "library-catalogue.xlsx");
+    
+      if (!cards || cards.length === 0) {
+        console.error("No data to export.");
+        return;
+      }
+    
+      const cardsForExport = cards.map((card) => ({
+        ID: card.id,
+        Image_URL: card.imgUrl,
+        Classification_Number: card.classification_number,
+        Call_Number: card.call_number,
+        Author: card.author,
+        Title: card.title,
+        Additional_Authors: card.additional_authors.join(", "),
+        Additional_Authors_As_It_Is: card.additional_authors_as_it_is.join(", "),
+        Publication_Place: card.publication.place,
+        Publication_Publisher: card.publication.publisher,
+        Publication_Year: card.publication.year,
+        Physical_Pages: card.physical_description.pages,
+        Physical_Dimensions: card.physical_description.dimensions,
+        Edition: card.edition,
+        Notes: card.notes,
+        ISBN: card.isbn,
+        Subjects: card.subjects.join(", "),
+        Barcodes: card.barcodes.join(", "),
+      }));
+    
+      const ws = utils.json_to_sheet(cardsForExport);
+      const wb = utils.book_new();
+      utils.book_append_sheet(wb, ws, "Catalogue Cards");
+      writeFile(wb, "library-catalogue.xlsx");
+    
   };
 
   const handleEditCard = (card: CatalogueCard) => {
